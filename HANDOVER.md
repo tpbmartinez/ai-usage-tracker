@@ -1,5 +1,7 @@
 # Handover: AI Usage Limit Tracker
 
+> Historical handover. Update, 9 November 2026: the owner has authorised public open-source publication under GPL-3.0-only. The current README, LICENSE, PRIVACY, CONTRIBUTING and SECURITY documents supersede the original private-hosting instructions and absolute privacy claims below. The runtime code remains v2.1.2. In particular, request bodies/prompt-box text are processed in memory; diagnostic filtering is incomplete, settings may sync through Google, and some identifiers are retained. See SECURITY_REVIEW.md.
+
 A Chrome extension (Manifest V3, plain JavaScript, no build step, no dependencies) that tracks the owner's Claude, ChatGPT and Gemini usage limits. It shows % used and reset times, sends alerts, keeps history and has a dashboard.
 
 - **Current version:** 2.1.2 (in `manifest.json`; the popup footer and dashboard title show the installed version)
