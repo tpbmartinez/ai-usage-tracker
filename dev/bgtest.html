@@ -1,0 +1,40 @@
+<!-- Runs the real background.js alert engine against fake Chrome APIs with a fake clock. Expected output is in HANDOVER.md. -->
+<!doctype html><meta charset="utf-8"><pre id="out">running…</pre>
+<script src="stub.js"></script><script src="../lib/core.js"></script><script src="../lib/providers.js"></script><script src="../background.js"></script>
+<script>
+(async () => {
+  const log = []; const real = Date.now; let T = real(); Date.now = () => T; const M = 60e3;
+  await CORE.clearHistory();
+  await CORE.saveSettings({ ...CORE.DEFAULTS, planPrices: { claude: 200, chatgpt: 0, gemini: 0 } });
+  const R5 = T + 3 * 3600e3, RW = T + 3600e3;
+  const feed = (p5, pw, rw = RW) => saveResult('claude', { plan: 'Max', windows: [
+    { key: 'five_hour', label: '5-hour window', pct: p5, resetsAt: R5, kind: 'session' },
+    { key: 'seven_day', label: 'Weekly · all models', pct: pw, resetsAt: rw, kind: 'weekly' }] }, 'test');
+  const step = async (label, fn) => { const n = __notes.length; await fn(); log.push(`${label}: ` + (__notes.slice(n).map(x => `[${x.title} | ${x.message}]`).join(' ') || '(no alert)') + ` badge=${__badge}`); };
+  await step('50%', () => feed(50, 20));
+  T += 15 * M; await step('60% +15m', () => feed(60, 20));
+  T += 15 * M; await step('70% +30m', () => feed(70, 20));
+  T += 5 * M; await step('76%', () => feed(76, 20));
+  await step('76% again', () => feed(76, 20));
+  T += 5 * M; await step('92%', () => feed(92, 20));
+  T += 5 * M; await step('100%', () => feed(100, 20));
+  log.push('alarms: ' + JSON.stringify(Object.keys(__alarms)));
+  T = RW + 5 * M; await step('weekly rolled over', () => feed(100, 2, RW + 7 * 86400e3));
+  FETCHERS.claude = async () => ({ plan: 'Max', windows: [{ key: 'five_hour', label: '5-hour window', pct: 3, resetsAt: T + 5 * 3600e3, kind: 'session' }] });
+  T = R5 + 2 * M; await step('back alarm', () => onBackAlarm('claude', 'five_hour'));
+  // Quiet hours covering "now" (real clock)
+  const d = new Date(); const hh = (x) => String(x).padStart(2, '0');
+  await CORE.saveSettings({ ...(await CORE.getSettings()), quietOn: true, quietStart: `${hh(d.getHours())}:00`, quietEnd: `${hh((d.getHours() + 1) % 24)}:00` });
+  await step('alert in quiet hours', () => notify('claude', 'Held alert', 'x'));
+  log.push('held: ' + JSON.stringify((__mem.local.held || []).map(x => x.title)));
+  await CORE.saveSettings({ ...(await CORE.getSettings()), quietOn: false });
+  await step('quiet hours end', () => flushHeld());
+  const ex = (p) => saveResult('claude', { plan: 'Max', windows: [{ key: 'extra_usage', label: 'Extra usage · monthly cap', pct: p, resetsAt: null, kind: 'monthly', link: {} }] }, 'test');
+  await step('extra usage 50%', () => ex(50));
+  await step('extra usage 80%', () => ex(80));
+  await step('extra usage 80% again', () => ex(80));
+  const samples = await CORE.getSamples(0), periods = await CORE.getPeriods();
+  log.push(`samples=${samples.length} periods=${periods.map(p => p.k + ':' + Math.round(p.peak)).join(',')}`);
+  document.getElementById('out').textContent = log.join('\n');
+})().catch(e => document.getElementById('out').textContent = 'ERROR ' + e.stack);
+</script>

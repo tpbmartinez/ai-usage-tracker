@@ -1,0 +1,6 @@
+body { width: 360px; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 8px; }
+h1 { font-size: 15px; margin: 0; font-weight: 650; }
+.actions { display: flex; gap: 6px; }
+main { padding: 0 14px; display: grid; gap: 10px; }
+footer { padding: 10px 14px 12px; font-size: 11px; color: var(--muted); }

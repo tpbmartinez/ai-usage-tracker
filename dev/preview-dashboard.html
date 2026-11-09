@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Usage Dashboard</title>
+  <link rel="stylesheet" href="../lib/ui.css">
+  <link rel="stylesheet" href="../dashboard/dashboard.css">
+</head>
+<body>
+  <header class="top">
+    <h1>AI usage <span id="ver" class="ver"></span></h1>
+    <nav id="tabs">
+      <a href="#overview">Overview</a>
+      <a href="#history">History</a>
+      <a href="#messages">Messages</a>
+      <a href="#settings">Settings</a>
+      <a href="#data">Data</a>
+    </nav>
+    <button id="refresh">Refresh</button>
+  </header>
+  <main id="view"></main>
+  <script src="stub.js"></script><script src="../lib/core.js"></script><script src="seed.js"></script>
+  <script src="../lib/ui.js"></script>
+  <script src="../dashboard/dashboard.js"></script>
+</body>
+</html>
